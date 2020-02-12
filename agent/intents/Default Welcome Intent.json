@@ -1,0 +1,53 @@
+{
+  "id": "8253fc66-d2d7-4728-8044-9a3e199e6147",
+  "name": "Default Welcome Intent",
+  "auto": true,
+  "contexts": [],
+  "responses": [
+    {
+      "resetContexts": false,
+      "action": "input.welcome",
+      "affectedContexts": [],
+      "parameters": [],
+      "messages": [
+        {
+          "type": "suggestion_chips",
+          "platform": "google",
+          "lang": "en",
+          "suggestions": [
+            {
+              "title": "7"
+            },
+            {
+              "title": "12"
+            },
+            {
+              "title": "42"
+            },
+            {
+              "title": "200"
+            }
+          ]
+        },
+        {
+          "type": 0,
+          "lang": "en",
+          "speech": "Hi! Welcome to Brockport Calendar! Let\u0027s get started. What would you like to know? For example, you can ask \u0022when are midterms\u0022 or \u0022what is happening on March 14th?\u0022"
+        }
+      ],
+      "defaultResponsePlatforms": {
+        "google": true
+      },
+      "speech": []
+    }
+  ],
+  "priority": 500000,
+  "webhookUsed": false,
+  "webhookForSlotFilling": false,
+  "fallbackIntent": false,
+  "events": [
+    {
+      "name": "WELCOME"
+    }
+  ]
+}

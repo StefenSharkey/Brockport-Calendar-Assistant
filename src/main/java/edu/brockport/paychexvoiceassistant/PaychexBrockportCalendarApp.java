@@ -80,7 +80,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
 
         String event = new BrockportCalendar().getEventName(date);
 
-        String response = "You asked about " + date + "from " + school + " with tense " + tense + ".\n" +
+        String response = "You asked about " + date + " from " + school + " with tense " + tense + ".\n" +
                 "The event is " + event + ".";
 
         return getResponseBuilder(request).add(response).build();

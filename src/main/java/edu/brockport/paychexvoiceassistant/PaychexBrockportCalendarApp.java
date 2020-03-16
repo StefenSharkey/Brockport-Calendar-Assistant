@@ -61,7 +61,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     @ForIntent("getdate")
     public ActionResponse getdate(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
-        Tense tense = Tense.valueOf((String) request.getParameter("tense"));
+        Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
         Date date = new BrockportCalendar().getEventDate(event, tense.equals(Tense.PAST));
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
@@ -76,7 +76,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
         Date date = Date.from(OffsetDateTime.parse((String) request.getParameter("date"), formatter).toInstant());
         String school = (String) request.getParameter("school");
-        Tense tense = Tense.valueOf((String) request.getParameter("tense"));
+        Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
 
         String event = new BrockportCalendar().getEventName(date);
 

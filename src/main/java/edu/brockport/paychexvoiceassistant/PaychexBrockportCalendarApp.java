@@ -82,11 +82,24 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         Date date = Date.from(OffsetDateTime.parse((String) request.getParameter("date"), formatter).toInstant());
         String school = (String) request.getParameter("school");
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
         String event = new BrockportCalendar().getEventName(date);
 
         String response = "You asked about " + date + " from " + school + " with tense " + tense + ".\n" +
                 "The event is " + event + ".";
+
+        return getResponseBuilder(request).add(response).build();
+    }
+
+    @ForIntent("getdaysuntilevent")
+    public ActionResponse getdaysuntilevent(ActionRequest request) throws IOException {
+        String event = (String) request.getParameter("event");
+        String school = (String) request.getParameter("school");
+        int days = new BrockportCalendar().getDaysUntilEvent(event);
+
+        String response = "You asked about how many days there are until " + event + " at " + school + ".\n" +
+                "There are " + days + " days.";
 
         return getResponseBuilder(request).add(response).build();
     }

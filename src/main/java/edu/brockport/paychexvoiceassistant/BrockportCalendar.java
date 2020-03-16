@@ -3,6 +3,9 @@ package edu.brockport.paychexvoiceassistant;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -199,6 +202,13 @@ public class BrockportCalendar {
         }
 
         return null;
+    }
+
+    public int getDaysUntilEvent(String event) {
+        LocalDate now = LocalDate.now();
+        LocalDate eventDate = getEventDate(event, false).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        return Period.between(now, eventDate).getDays();
     }
 
     /**

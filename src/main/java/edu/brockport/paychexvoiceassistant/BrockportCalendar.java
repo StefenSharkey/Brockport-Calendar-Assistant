@@ -170,7 +170,7 @@ public class BrockportCalendar {
                     double tempSimilarity = similarity(eventName, tempEvent);
 //                    System.out.printf("{event=%s, date=%s, similarity=%f}\n", tempEvent, tempDate.toString(), tempSimilarity);
 
-                    if (tempSimilarity > eventSimilarity) {
+                    if (tempSimilarity >= 0.20 && tempSimilarity > eventSimilarity) {
 //                        System.out.println("Set event date to " + tempEvent);
                         eventDate = tempDate;
                         eventSimilarity = tempSimilarity;

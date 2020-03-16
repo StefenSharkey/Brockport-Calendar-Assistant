@@ -65,8 +65,13 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         Date date = new BrockportCalendar().getEventDate(event, tense.equals(Tense.PAST));
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        String response = "You asked about " + event + " with tense " + tense + ".\n" +
-                "That occurs on " + dateFormat.format(date) + ".";
+        String response = "You asked about " + event + " with tense " + tense + ".\n";
+
+        if (date == null) {
+            response += "There are no events occurring with that name.";
+        } else {
+            response += "That occurs on " + dateFormat.format(date) + ".";
+        }
 
         return getResponseBuilder(request).add(response).build();
     }

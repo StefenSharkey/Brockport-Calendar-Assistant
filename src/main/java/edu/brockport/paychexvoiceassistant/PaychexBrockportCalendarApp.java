@@ -13,20 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package edu.brockport.paychexvoiceassistant;
 
 import com.google.actions.api.ActionRequest;
 import com.google.actions.api.ActionResponse;
 import com.google.actions.api.DialogflowApp;
 import com.google.actions.api.ForIntent;
-import com.google.actions.api.response.ResponseBuilder;
-import com.google.protobuf.Any;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -38,8 +37,11 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             Calendar calendar = Calendar.getInstance();
             calendar.set(2019, Calendar.OCTOBER, 15);
 
-            Date eventDate = cal.getEventDate("mid-term", false);
-            String eventName = cal.getEventName(calendar.getTime());
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+            Date date = Date.from(OffsetDateTime.parse("2020-03-11T12:00:00-05:00", formatter).toInstant());
+
+            Date eventDate = cal.getEventDate("finals", false);
+            String eventName = cal.getEventName(date);
 
             System.out.println(eventDate);
             System.out.println(eventName);
@@ -57,31 +59,30 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     // be reused by the server.
 
     @ForIntent("getdate")
-    public ActionResponse getdate(ActionRequest request) {
-        ActionResponse actionResponse = null;
+    public ActionResponse getdate(ActionRequest request) throws IOException {
+        String event = (String) request.getParameter("event");
+        Tense tense = Tense.valueOf((String) request.getParameter("tense"));
+        Date date = new BrockportCalendar().getEventDate(event, tense.equals(Tense.PAST));
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-//        try {
-            LOGGER.info("get_date start.");
+        String response = "You asked about " + event + " with tense " + tense + ".\n" +
+                "That occurs on " + dateFormat.format(date) + ".";
 
-//            String event = (String) request.getParameter("event");
-//            Tense tense = Tense.valueOf((String) request.getParameter("tense"));
-//
-//            BrockportCalendar calendar = new BrockportCalendar();
-//
-//            String response = "You asked about " + event + " with tense " + tense + ".\n";
-//            Date date = calendar.getEventDate(event, tense.equals(Tense.PAST));
-//            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-//
-//            response += "That occurs on " + dateFormat.format(date) + ".";
-            String response = "Test";
+        return getResponseBuilder(request).add(response).build();
+    }
 
-            ResponseBuilder responseBuilder = getResponseBuilder(request).add(response).endConversation();
-            actionResponse = responseBuilder.build();
-            LOGGER.info(actionResponse.toString());
-            LOGGER.info("get_date end.");
-//        } catch (IOException e) {
-//            LOGGER.error(e.getLocalizedMessage());
-//        }
-        return actionResponse;
+    @ForIntent("getevent")
+    public ActionResponse getevent(ActionRequest request) throws IOException {
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+        Date date = Date.from(OffsetDateTime.parse((String) request.getParameter("date"), formatter).toInstant());
+        String school = (String) request.getParameter("school");
+        Tense tense = Tense.valueOf((String) request.getParameter("tense"));
+
+        String event = new BrockportCalendar().getEventName(date);
+
+        String response = "You asked about " + date + "from " + school + " with tense " + tense + ".\n" +
+                "The event is " + event + ".";
+
+        return getResponseBuilder(request).add(response).build();
     }
 }

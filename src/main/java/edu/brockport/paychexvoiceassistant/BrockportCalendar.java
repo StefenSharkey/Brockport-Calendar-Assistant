@@ -3,7 +3,13 @@ package edu.brockport.paychexvoiceassistant;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -143,23 +149,32 @@ public class BrockportCalendar {
      *         null if no event is found.
      */
     public Date getEventDate(String eventName, boolean includePastEvents) {
+        // Remove all non-alphanumeric characters from the event name.
+        eventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
+
         Date eventDate = null;
         double eventSimilarity = 0.0;
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.
         for (Map.Entry<String, Date> entry : CALENDAR.entrySet()) {
-            String tempEvent = entry.getKey();
+            // Remove all non-alphanumeric characters from the current event.
+            String tempEvent = entry.getKey().toLowerCase().replaceAll("[^a-z0-9]", "");
             Date tempDate = entry.getValue();
 
-            if (!includePastEvents && tempDate.before(new Date())) {
-                // Do nothing. Event before today.
-            } else {
-                double tempSimilarity = similarity(eventName, tempEvent);
+            if (includePastEvents || !tempDate.before(new Date())) {
+                if (tempEvent.contains(eventName)) {
+                    eventDate = tempDate;
+                    eventSimilarity = 1.0;
+                } else {
+                    double tempSimilarity = similarity(eventName, tempEvent);
+                    System.out.printf("{event=%s, date=%s, similarity=%f}\n", tempEvent, tempDate.toString(), tempSimilarity);
 
-                if (tempSimilarity > eventSimilarity) {
-                    eventDate = entry.getValue();
-                    eventSimilarity = tempSimilarity;
+                    if (tempSimilarity > eventSimilarity) {
+                        System.out.println("Set event date to " + tempEvent);
+                        eventDate = tempDate;
+                        eventSimilarity = tempSimilarity;
+                    }
                 }
             }
         }

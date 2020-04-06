@@ -8,6 +8,7 @@ import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.InputMismatchException;
@@ -27,7 +28,12 @@ public class BrockportCalendar {
     private static final Logger LOGGER = LoggerFactory.getLogger(BrockportCalendar.class);
     private static final String WEBSITE = "https://www.brockport.edu/academics/calendar/";
 
+    private static final double DATE_SIMILARITY_THRESHOLD = 0.20;
+
     private final HashMap<String, Date> CALENDAR = new HashMap<>();
+
+    private List<Date> dates = new ArrayList<>();
+    private static final int MAX_DATES = 3;
 
     /**
      * Initializes a connection with the Brockport calendar website, and retrieves and stores all dates and events.
@@ -144,18 +150,18 @@ public class BrockportCalendar {
     }
 
     /**
-     * Retrieves the {@link java.util.Date} for an event. Since multiple events with the same name can occur,
+     * Retrieves up to {@code MAX_DATES} number of {@link java.util.Date}s, wrapped in a sorted
+     * {@link java.util.ArrayList<java.util.Date>}, for an event, since multiple events with the same name can occur and
+     * event name matching may not be ideal.
      *
      * @param eventName The event name.
      * @param includePastEvents If true, considers any past events. If false, only future events are considered.
-     * @return The {@link java.util.Date} for an event.
-     *         null if no event is found.
+     * @return The {@link java.util.ArrayList<java.util.Date>} for an event.
      */
-    public Date getEventDate(String eventName, boolean includePastEvents) {
+    public List<Date> getEventDates(String eventName, boolean includePastEvents) {
         // Remove all non-alphanumeric characters from the event name.
         eventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
 
-        Date eventDate = null;
         double eventSimilarity = 0.0;
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
@@ -167,22 +173,22 @@ public class BrockportCalendar {
 
             if (includePastEvents || !tempDate.before(new Date())) {
                 if (tempEvent.contains(eventName)) {
-                    eventDate = tempDate;
+                    insertDate(tempDate);
                     eventSimilarity = 1.0;
                 } else {
                     double tempSimilarity = similarity(eventName, tempEvent);
 //                    System.out.printf("{event=%s, date=%s, similarity=%f}\n", tempEvent, tempDate.toString(), tempSimilarity);
 
-                    if (tempSimilarity >= 0.20 && tempSimilarity > eventSimilarity) {
+                    if (tempSimilarity >= DATE_SIMILARITY_THRESHOLD && tempSimilarity > eventSimilarity) {
 //                        System.out.println("Set event date to " + tempEvent);
-                        eventDate = tempDate;
+                        insertDate(tempDate);
                         eventSimilarity = tempSimilarity;
                     }
                 }
             }
         }
 
-        return eventDate;
+        return dates;
     }
 
     /**
@@ -205,8 +211,19 @@ public class BrockportCalendar {
     }
 
     public int getDaysUntilEvent(String event) {
-        LocalDate eventDate = getEventDate(event, false).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate eventDate = getEventDates(event, false).get(dates.size() - 1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         return (int) LocalDate.now().until(eventDate, ChronoUnit.DAYS);
+    }
+
+    private void insertDate(Date date) {
+        dates.sort(Comparator.comparing(date1 -> date1));
+
+        if (dates.size() >= MAX_DATES) {
+            dates.remove(0);
+        }
+
+        dates.add(date);
+        dates.sort(Comparator.comparing(date1 -> date1));
     }
 
     /**

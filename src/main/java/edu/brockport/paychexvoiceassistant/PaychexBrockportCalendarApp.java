@@ -28,6 +28,7 @@ import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class PaychexBrockportCalendarApp extends DialogflowApp {
 
@@ -40,10 +41,10 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
             Date date = Date.from(OffsetDateTime.parse("2020-03-11T12:00:00-05:00", formatter).toInstant());
 
-            Date eventDate = cal.getEventDate("finals", false);
+            List<Date> eventDate = cal.getEventDates("mid-term", false);
             String eventName = cal.getEventName(date);
 
-            System.out.println(eventDate);
+            System.out.println(eventDate.get(eventDate.size() - 1));
             System.out.println(eventName);
         } catch (IOException e) {
             LOGGER.error(e.getLocalizedMessage());
@@ -62,7 +63,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     public ActionResponse getdate(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
-        Date date = new BrockportCalendar().getEventDate(event, tense.equals(Tense.PAST));
+        List<Date> date = new BrockportCalendar().getEventDates(event, tense.equals(Tense.PAST));
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
         String response = "You asked about " + event + " with tense " + tense + ".\n";

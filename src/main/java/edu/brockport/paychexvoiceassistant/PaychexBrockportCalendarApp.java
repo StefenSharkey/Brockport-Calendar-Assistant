@@ -41,10 +41,15 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
             Date date = Date.from(OffsetDateTime.parse("2020-03-11T12:00:00-05:00", formatter).toInstant());
 
-            List<Date> eventDate = cal.getEventDates("mid-term", false);
+            List<DateInfo> eventDates = cal.getEventDates("finals", Tense.PAST);
             String eventName = cal.getEventName(date);
 
-            System.out.println(eventDate.get(eventDate.size() - 1));
+            eventDates.forEach(dateInfo -> {
+                System.out.println(dateInfo.getName());
+                System.out.println(dateInfo.getDate());
+                System.out.println(dateInfo.getSimilarity());
+                System.out.println();
+            });
             System.out.println(eventName);
         } catch (IOException e) {
             LOGGER.error(e.getLocalizedMessage());
@@ -63,18 +68,24 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     public ActionResponse getdate(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
-        List<Date> date = new BrockportCalendar().getEventDates(event, tense.equals(Tense.PAST));
+        List<DateInfo> dates = new BrockportCalendar().getEventDates(event, tense);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        String response = "You asked about " + event + " with tense " + tense + ".\n";
+        final String[] response = {"You asked about " + event + " with tense " + tense + ".\n"};
 
-        if (date == null) {
-            response += "There are no events occurring with that name.";
+        if (dates.isEmpty()) {
+            response[0] += "There are no events occurring with that name.";
         } else {
-            response += "That occurs on " + dateFormat.format(date) + ".";
+            if (dates.size() > 1) {
+                response[0] += "I found " + dates.size() + " possible dates with this event.\n";
+            }
+
+            dates.forEach(dateInfo ->
+                    response[0] += "I found " + dateInfo.getName() + " occuring on " + dateFormat.format(dateInfo.getDate()) + ".\n"
+            );
         }
 
-        return getResponseBuilder(request).add(response).build();
+        return getResponseBuilder(request).add(response[0]).build();
     }
 
     @ForIntent("getevent")

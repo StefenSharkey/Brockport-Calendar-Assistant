@@ -14,18 +14,12 @@
  * limitations under the License.
  */
 apply plugin: 'java'
-apply plugin: 'kotlin'
 
 apply from: 'build-gcp.gradle'
 
 buildscript {
-    ext.kotlin_version = '1.3.61'
-
     repositories {
         mavenCentral()
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
 
@@ -36,17 +30,13 @@ repositories {
 }
 
 dependencies {
-    compile group: 'org.jetbrains.kotlin', name: 'kotlin-stdlib-jdk8', version: "$kotlin_version"
     compile group: 'org.jsoup', name: 'jsoup', version: '1.7.2'
     compile group: 'com.google.actions', name: 'actions-on-google', version: '1.+'
     compile group: 'joda-time', name: 'joda-time', version: '2.10.5'
 
-    testCompile group: 'junit', name: 'junit', version: '4.12'
-}
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
+    implementation group: 'me.xdrop', name: 'fuzzywuzzy', version: '1.2.0'
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
+    testCompile group: 'junit', name: 'junit', version: '4.12'
 }

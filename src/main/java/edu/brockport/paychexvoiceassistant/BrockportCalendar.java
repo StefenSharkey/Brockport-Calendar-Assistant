@@ -15,6 +15,7 @@ import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Map;
 
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.jsoup.Jsoup;
@@ -32,7 +33,7 @@ public class BrockportCalendar {
 
     private final HashMap<String, Date> CALENDAR = new HashMap<>();
 
-    private List<Date> dates = new ArrayList<>();
+    private List<DateInfo> dates = new ArrayList<>();
     private static final int MAX_DATES = 3;
 
     /**
@@ -155,14 +156,13 @@ public class BrockportCalendar {
      * event name matching may not be ideal.
      *
      * @param eventName The event name.
-     * @param includePastEvents If true, considers any past events. If false, only future events are considered.
+     * @param tense If {@code Tense.PAST}, considers any past events. If {@code Tense.NOTPAST}, only future events are
+     *             considered.
      * @return The {@link java.util.ArrayList<java.util.Date>} for an event.
      */
-    public List<Date> getEventDates(String eventName, boolean includePastEvents) {
+    public List<DateInfo> getEventDates(String eventName, Tense tense) {
         // Remove all non-alphanumeric characters from the event name.
         eventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
-
-        double eventSimilarity = 0.0;
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.
@@ -171,20 +171,10 @@ public class BrockportCalendar {
             String tempEvent = entry.getKey().toLowerCase().replaceAll("[^a-z0-9]", "");
             Date tempDate = entry.getValue();
 
-            if (includePastEvents || !tempDate.before(new Date())) {
-                if (tempEvent.contains(eventName)) {
-                    insertDate(tempDate);
-                    eventSimilarity = 1.0;
-                } else {
-                    double tempSimilarity = similarity(eventName, tempEvent);
-//                    System.out.printf("{event=%s, date=%s, similarity=%f}\n", tempEvent, tempDate.toString(), tempSimilarity);
-
-                    if (tempSimilarity >= DATE_SIMILARITY_THRESHOLD && tempSimilarity > eventSimilarity) {
-//                        System.out.println("Set event date to " + tempEvent);
-                        insertDate(tempDate);
-                        eventSimilarity = tempSimilarity;
-                    }
-                }
+            if (tense == Tense.PAST || !tempDate.before(new Date())) {
+                insertDate(new DateInfo(getEventName(tempDate),
+                        tempDate,
+                        tempEvent.contains(eventName) ? 100 : FuzzySearch.partialRatio(eventName, tempEvent)));
             }
         }
 
@@ -211,45 +201,29 @@ public class BrockportCalendar {
     }
 
     public int getDaysUntilEvent(String event) {
-        LocalDate eventDate = getEventDates(event, false).get(dates.size() - 1).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate eventDate = getEventDates(event, Tense.NOTPAST).get(dates.size() - 1)
+                .getDate()
+                .toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
         return (int) LocalDate.now().until(eventDate, ChronoUnit.DAYS);
     }
 
-    private void insertDate(Date date) {
-        dates.sort(Comparator.comparing(date1 -> date1));
+    private void insertDate(DateInfo dateInfo) {
+        dates.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
 
-        if (dates.size() >= MAX_DATES) {
-            dates.remove(0);
+        if (dateInfo.getSimilarity() >= DATE_SIMILARITY_THRESHOLD) {
+            if (dates.size() < MAX_DATES) {
+                dates.add(dateInfo);
+            } else {
+                int lastIndex = dates.size() - 1;
+
+                if (dateInfo.getSimilarity().compareTo(dates.get(lastIndex).getSimilarity()) >= 0) {
+                    dates.set(lastIndex, dateInfo);
+                }
+            }
         }
 
-        dates.add(date);
-        dates.sort(Comparator.comparing(date1 -> date1));
-    }
-
-    /**
-     * Calculates the similarity between the two given {@link java.lang.String}s.
-     *
-     * @param s1 The first string to compare.
-     * @param s2 The second string to compare.
-     * @return The calculated similarity.
-     */
-    public double similarity(String s1, String s2) {
-        String longer = s1;
-        String shorter = s2;
-
-        // Longer should always have the greater length.
-        if (s1.length() < s2.length()) {
-            longer = s2;
-            shorter = s1;
-        }
-
-        int longerLength = longer.length();
-
-        // If both strings are of zero length.
-        if (longerLength == 0) {
-            return 1.0;
-        }
-
-        return (longerLength - StringUtils.getLevenshteinDistance(longer, shorter)) / (double) longerLength;
+        dates.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
     }
 }

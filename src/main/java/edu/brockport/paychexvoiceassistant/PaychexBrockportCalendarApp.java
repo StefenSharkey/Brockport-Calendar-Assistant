@@ -98,13 +98,12 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     public ActionResponse getevent(ActionRequest request) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
         Date date = Date.from(OffsetDateTime.parse((String) request.getParameter("date"), formatter).toInstant());
-        String school = (String) request.getParameter("school");
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
         String event = new BrockportCalendar().getEventName(date);
 
-        String response = "You asked about " + dateFormat.format(date) + " from " + school;
+        String response = "You asked about " + dateFormat.format(date);
 
         if (tense == Tense.PAST) {
             response += " including past events";
@@ -118,10 +117,9 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     @ForIntent("getdaysuntilevent")
     public ActionResponse getdaysuntilevent(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
-        String school = (String) request.getParameter("school");
         Integer days = new BrockportCalendar().getDaysUntilEvent(event);
 
-        String response = "You asked about how many days there are until " + event + " at " + school + ".\n";
+        String response = "You asked about how many days there are until " + event + ".\n";
 
         if (days == null) {
             response += "There were no events found.";

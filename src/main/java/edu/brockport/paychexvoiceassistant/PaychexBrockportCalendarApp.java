@@ -41,7 +41,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
             Date date = Date.from(OffsetDateTime.parse("2020-03-11T12:00:00-05:00", formatter).toInstant());
 
-            List<DateInfo> eventDates = cal.getEventDates("finals", Tense.PAST);
+            List<DateInfo> eventDates = cal.getEventDates("midterms", Tense.PAST);
             String eventName = cal.getEventName(date);
 
             eventDates.forEach(dateInfo -> {
@@ -71,7 +71,13 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         List<DateInfo> dates = new BrockportCalendar().getEventDates(event, tense);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        final String[] response = {"You asked about " + event + " with tense " + tense + ".\n"};
+        final String[] response = {"You asked about " + event};
+
+        if (tense == Tense.PAST) {
+            response[0] += " including past events";
+        }
+
+        response[0] += ".\n";
 
         if (dates.isEmpty()) {
             response[0] += "There are no events occurring with that name.";
@@ -98,8 +104,13 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
 
         String event = new BrockportCalendar().getEventName(date);
 
-        String response = "You asked about " + dateFormat.format(date) + " from " + school + " with tense " + tense + ".\n" +
-                "The event is " + event + ".";
+        String response = "You asked about " + dateFormat.format(date) + " from " + school;
+
+        if (tense == Tense.PAST) {
+            response += " including past events";
+        }
+
+        response += ".\nThe event is " + event + ".";
 
         return getResponseBuilder(request).add(response).build();
     }
@@ -108,10 +119,15 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     public ActionResponse getdaysuntilevent(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
         String school = (String) request.getParameter("school");
-        int days = new BrockportCalendar().getDaysUntilEvent(event);
+        Integer days = new BrockportCalendar().getDaysUntilEvent(event);
 
-        String response = "You asked about how many days there are until " + event + " at " + school + ".\n" +
-                "There are " + days + " days.";
+        String response = "You asked about how many days there are until " + event + " at " + school + ".\n";
+
+        if (days == null) {
+            response += "There were no events found.";
+        } else {
+            response += "There are " + days + " days.";
+        }
 
         return getResponseBuilder(request).add(response).build();
     }

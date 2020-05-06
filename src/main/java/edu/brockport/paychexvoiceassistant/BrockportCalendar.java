@@ -200,13 +200,19 @@ public class BrockportCalendar {
         return null;
     }
 
-    public int getDaysUntilEvent(String event) {
-        LocalDate eventDate = getEventDates(event, Tense.NOTPAST).get(dates.size() - 1)
-                .getDate()
-                .toInstant()
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate();
-        return (int) LocalDate.now().until(eventDate, ChronoUnit.DAYS);
+    public Integer getDaysUntilEvent(String event) {
+        List<DateInfo> dates = getEventDates(event, Tense.NOTPAST);
+
+        if (dates.isEmpty()) {
+            return null;
+        } else {
+            LocalDate eventDate = dates.get(dates.size() - 1)
+                    .getDate()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            return (int) LocalDate.now().until(eventDate, ChronoUnit.DAYS);
+        }
     }
 
     private void insertDate(DateInfo dateInfo) {

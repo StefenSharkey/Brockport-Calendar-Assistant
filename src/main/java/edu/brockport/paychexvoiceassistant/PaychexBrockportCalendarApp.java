@@ -24,8 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -74,7 +77,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         final String[] response = {"You asked about " + event};
 
         if (tense == Tense.PAST) {
-            response[0] += " including past events";
+            response[0] += ", including past events";
         }
 
         response[0] += ".\n";
@@ -106,10 +109,16 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         String response = "You asked about " + dateFormat.format(date);
 
         if (tense == Tense.PAST) {
-            response += " including past events";
+            response += ", including past events";
         }
 
-        response += ".\nThe event is " + event + ".";
+        response += ".\n";
+
+        if (event == null) {
+            response += "There were no events found.";
+        } else {
+            response += "The event is " + event + ".";
+        }
 
         return getResponseBuilder(request).add(response).build();
     }
@@ -117,14 +126,16 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     @ForIntent("getdaysuntilevent")
     public ActionResponse getdaysuntilevent(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");
-        Integer days = new BrockportCalendar().getDaysUntilEvent(event);
+        DateInfo dateInfo = new BrockportCalendar().getDaysUntilEvent(event);
 
         String response = "You asked about how many days there are until " + event + ".\n";
 
-        if (days == null) {
+        if (dateInfo == null) {
             response += "There were no events found.";
         } else {
-            response += "There are " + days + " days.";
+            int days = (int) LocalDate.now().until(dateInfo
+                    .getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), ChronoUnit.DAYS);
+            response += "There are " + days + " days until " + dateInfo.getName() + ".";
         }
 
         return getResponseBuilder(request).add(response).build();

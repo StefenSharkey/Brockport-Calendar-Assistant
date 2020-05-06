@@ -32,7 +32,6 @@ repositories {
 dependencies {
     compile group: 'org.jsoup', name: 'jsoup', version: '1.7.2'
     compile group: 'com.google.actions', name: 'actions-on-google', version: '1.+'
-    compile group: 'joda-time', name: 'joda-time', version: '2.10.5'
 
     compile group: 'org.projectlombok', name: 'lombok', version: '1.18.12'
     annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.12'

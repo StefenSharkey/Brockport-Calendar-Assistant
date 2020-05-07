@@ -52,17 +52,16 @@ public class BrockportCalendar {
                 String event = events.get(x).text();
 
                 if (CALENDAR.containsKey(event)) {
-                    List<String> eventSplit = new ArrayList<>(Arrays.asList(event.split(" ")));
 
-                    if (eventSplit.get(eventSplit.size() - 2).equals("Day")) {
-                        eventSplit.set(eventSplit.size() - 1,
-                                String.valueOf(Integer.parseInt(eventSplit.get(eventSplit.size() - 1)) + 1));
-                    } else {
-                        eventSplit.add("Day");
-                        eventSplit.add("2");
+                    String duplicate = event + " Day 2";
+                    int i=2;
+                    while(CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ i)){
+                        duplicate = duplicate.substring(0, duplicate.length()-1) + (i+1);
+                        i++;
                     }
 
-                    event = StringUtils.join(eventSplit, " ");
+                    event = duplicate;
+
                 }
 
                 CALENDAR.put(event, date);
@@ -165,11 +164,12 @@ public class BrockportCalendar {
         // state.
         for (Map.Entry<String, Date> entry : CALENDAR.entrySet()) {
             // Remove all non-alphanumeric characters from the current event.
-            String tempEvent = entry.getKey().toLowerCase().replaceAll("[^a-z0-9]", "");
+            String event = entry.getKey();
+            String tempEvent = event.toLowerCase().replaceAll("[^a-z0-9]", "");
             Date tempDate = entry.getValue();
 
             if (tense == Tense.PAST || !tempDate.before(new Date())) {
-                insertDate(new DateInfo(getEventName(tempDate),
+                insertDate(new DateInfo(event,
                         tempDate,
                         tempEvent.contains(eventName) ? 100 : FuzzySearch.partialRatio(eventName, tempEvent)));
             }
@@ -203,7 +203,7 @@ public class BrockportCalendar {
         if (dates.isEmpty()) {
             return null;
         } else {
-            return dates.get(dates.size() - 1);
+            return dates.get(0);
         }
     }
 

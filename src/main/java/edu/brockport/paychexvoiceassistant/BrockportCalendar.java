@@ -203,7 +203,7 @@ public class BrockportCalendar {
         if (dates.isEmpty()) {
             return null;
         } else {
-            return dates.get(dates.size() - 1);
+            return dates.get(0);
         }
     }
 

@@ -52,16 +52,13 @@ public class BrockportCalendar {
                 String event = events.get(x).text();
 
                 if (CALENDAR.containsKey(event)) {
-
                     String duplicate = event + " Day 2";
-                    int i=2;
-                    while(CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ i)){
-                        duplicate = duplicate.substring(0, duplicate.length()-1) + (i+1);
-                        i++;
+
+                    for (int y = 2; CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ y); y++){
+                        duplicate = duplicate.substring(0, duplicate.length()-1) + (y+1);
                     }
 
                     event = duplicate;
-
                 }
 
                 CALENDAR.put(event, date);

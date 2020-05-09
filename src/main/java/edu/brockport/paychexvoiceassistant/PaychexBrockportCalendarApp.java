@@ -29,6 +29,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -136,6 +137,38 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             int days = (int) LocalDate.now().until(dateInfo
                     .getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), ChronoUnit.DAYS);
             response += "There are " + days + " days until " + dateInfo.getCleanEventName() + ".";
+        }
+
+        return getResponseBuilder(request).add(response).build();
+    }
+
+
+    @ForIntent("getnextevents")
+    public ActionResponse getnextevents(ActionRequest request) throws IOException {
+        int numDays = (int) request.getParameter("numdays");
+        String response = "";
+
+        if(numDays <= 50 && numDays > 0) {
+            List<DateInfo> events = new BrockportCalendar().getEventsInNextNDays(numDays);
+
+            response = "You asked about upcoming events in the next " + numDays + " days.\n";
+
+            if (events.size() == 0) {
+                response += "There were no events found.";
+            } else {
+
+                if (events.size() == 1) {
+                    response += "There was one event found in the next " + numDays + " days:\n";
+                } else {
+                    response += "There were " + events.size() + " events found in the next " + numDays + " days:\n";
+                }
+                SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
+                for (int i = 0; i < events.size(); i++) {
+                    response += events.get(i).getCleanEventName() + " on " + dateFormat.format(events.get(i).getDate());
+                }
+            }
+        }else{
+            response = "Number of days must be between 0 and 50";
         }
 
         return getResponseBuilder(request).add(response).build();

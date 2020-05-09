@@ -3,14 +3,7 @@ package edu.brockport.paychexvoiceassistant;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.StringUtils;
@@ -220,5 +213,25 @@ public class BrockportCalendar {
         }
 
         dates.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
+    }
+
+    public List<DateInfo> getEventsInNextNDays(int numDays) {
+        final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
+        final Date today = new Date();
+
+        Date cutoff = new Date();
+        for(int i=0; i<numDays; i++){
+            cutoff.setTime(cutoff.getTime() + DAY_IN_MILLISECONDS);
+        }
+
+        List <DateInfo> eventsInRange = new ArrayList();
+        for(Map.Entry<String, Date> entry : CALENDAR.entrySet()){
+            if(entry.getValue().after(today) && entry.getValue().before(cutoff)){
+                eventsInRange.add(new DateInfo(entry.getKey(), entry.getValue(), 0));
+            }
+        }
+
+        eventsInRange.sort(Comparator.comparing(o -> ((DateInfo) o).getDate()));
+        return eventsInRange;
     }
 }

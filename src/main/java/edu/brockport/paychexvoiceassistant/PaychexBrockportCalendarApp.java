@@ -145,7 +145,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
 
     @ForIntent("getnextevents")
     public ActionResponse getnextevents(ActionRequest request) throws IOException {
-        int numDays = (int) request.getParameter("numdays");
+        int numDays = Integer.parseInt((String)request.getParameter("numdays"));
         String response = "";
 
         if(numDays <= 50 && numDays > 0) {
@@ -164,7 +164,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
                 }
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
                 for (int i = 0; i < events.size(); i++) {
-                    response += events.get(i).getCleanEventName() + " on " + dateFormat.format(events.get(i).getDate());
+                    response += events.get(i).getCleanEventName() + " on " + dateFormat.format(events.get(i).getDate()) + "\n";
                 }
             }
         }else{
@@ -173,4 +173,5 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
 
         return getResponseBuilder(request).add(response).build();
     }
+
 }

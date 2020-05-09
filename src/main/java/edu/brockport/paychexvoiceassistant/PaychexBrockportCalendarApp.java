@@ -90,7 +90,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
             }
 
             dates.forEach(dateInfo ->
-                    response[0] += "I found " + dateInfo.getName() + " occuring on " + dateFormat.format(dateInfo.getDate()) + ".\n"
+                    response[0] += "I found " + dateInfo.getCleanEventName() + " occuring on " + dateFormat.format(dateInfo.getDate()) + ".\n"
             );
         }
 
@@ -135,7 +135,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         } else {
             int days = (int) LocalDate.now().until(dateInfo
                     .getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate(), ChronoUnit.DAYS);
-            response += "There are " + days + " days until " + dateInfo.getName() + ".";
+            response += "There are " + days + " days until " + dateInfo.getCleanEventName() + ".";
         }
 
         return getResponseBuilder(request).add(response).build();

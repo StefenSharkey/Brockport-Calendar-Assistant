@@ -162,12 +162,7 @@ public class BrockportCalendar {
      */
     public List<DateInfo> getEventDates(String eventName, Tense tense) {
         // Remove all non-alphanumeric characters from the event name.
-        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
-
-        //edge case
-        if(eventName.contains("graduation")){
-            eventName.replace("graduation", "commencement ceremony");
-        }
+        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "").replace("graduation", "commencement ceremony");
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.

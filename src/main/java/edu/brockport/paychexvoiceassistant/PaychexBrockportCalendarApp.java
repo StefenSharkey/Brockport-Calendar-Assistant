@@ -143,9 +143,9 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
     }
 
 
-    @ForIntent("getnextevents")
-    public ActionResponse getnextevents(ActionRequest request) throws IOException {
-        int numDays = Integer.parseInt((String)request.getParameter("numdays"));
+    @ForIntent("getfutureevents")
+    public ActionResponse getfutureevents(ActionRequest request) throws IOException {
+        int numDays = ((Number)request.getParameter("numdays")).intValue();
         String response = "";
 
         if(numDays <= 50 && numDays > 0) {
@@ -168,7 +168,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
                 }
             }
         }else{
-            response = "Number of days must be between 0 and 50";
+            response = "Number of days must be between 1 and 50";
         }
 
         return getResponseBuilder(request).add(response).build();

@@ -37,12 +37,12 @@ public class BrockportCalendarApp extends DialogflowApp {
 
     @ForIntent("getdate")
     public ActionResponse getdate(ActionRequest request) throws IOException {
-        String event = (String) request.getParameter("event");
+        String eventName = (String) request.getParameter("event");
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
-        List<DateInfo> dates = new BrockportCalendar().getEventDates(event, tense);
+        List<DateInfo> dates = new BrockportCalendar().getEventDates(eventName, tense);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        final String[] response = {"You asked about " + event};
+        final String[] response = {"You asked about " + eventName};
 
         if (tense == Tense.PAST) {
             response[0] += ", including past events";
@@ -72,7 +72,7 @@ public class BrockportCalendarApp extends DialogflowApp {
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        String event = new BrockportCalendar().getEventName(date);
+        String eventName = new BrockportCalendar().getEventName(date);
 
         String response = "You asked about " + dateFormat.format(date);
 
@@ -82,10 +82,10 @@ public class BrockportCalendarApp extends DialogflowApp {
 
         response += ".\n";
 
-        if (event == null) {
+        if (eventName == null) {
             response += "There were no events found.";
         } else {
-            response += "The event is " + event + ".";
+            response += "The event is " + eventName + ".";
         }
 
         return getResponseBuilder(request).add(response).build();
@@ -93,10 +93,10 @@ public class BrockportCalendarApp extends DialogflowApp {
 
     @ForIntent("getdaysuntilevent")
     public ActionResponse getdaysuntilevent(ActionRequest request) throws IOException {
-        String event = (String) request.getParameter("event");
-        DateInfo dateInfo = new BrockportCalendar().getDaysUntilEvent(event);
+        String eventName = (String) request.getParameter("event");
+        DateInfo dateInfo = new BrockportCalendar().getDaysUntilEvent(eventName);
 
-        String response = "You asked about how many days there are until " + event + ".\n";
+        String response = "You asked about how many days there are until " + eventName + ".\n";
 
         if (dateInfo == null) {
             response += "There were no events found.";

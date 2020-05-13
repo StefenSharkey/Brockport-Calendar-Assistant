@@ -23,7 +23,7 @@ public class BrockportCalendar {
 
     private final HashMap<String, Date> CALENDAR = new HashMap<>();
 
-    private List<DateInfo> dates = new ArrayList<>();
+    private final List<DateInfo> DATES = new ArrayList<>();
     private static final int MAX_DATES = 3;
 
     /**
@@ -165,7 +165,7 @@ public class BrockportCalendar {
             }
         }
 
-        return dates;
+        return DATES;
     }
 
     /**
@@ -198,21 +198,21 @@ public class BrockportCalendar {
     }
 
     private void insertDate(DateInfo dateInfo) {
-        dates.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
+        DATES.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
 
         if (dateInfo.getSimilarity() >= DATE_SIMILARITY_THRESHOLD) {
-            if (dates.size() < MAX_DATES) {
-                dates.add(dateInfo);
+            if (DATES.size() < MAX_DATES) {
+                DATES.add(dateInfo);
             } else {
-                int lastIndex = dates.size() - 1;
+                int lastIndex = DATES.size() - 1;
 
-                if (dateInfo.getSimilarity().compareTo(dates.get(lastIndex).getSimilarity()) >= 0) {
-                    dates.set(lastIndex, dateInfo);
+                if (dateInfo.getSimilarity().compareTo(DATES.get(lastIndex).getSimilarity()) >= 0) {
+                    DATES.set(lastIndex, dateInfo);
                 }
             }
         }
 
-        dates.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
+        DATES.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
     }
 
     public List<DateInfo> getEventsInNextNDays(int numDays) {

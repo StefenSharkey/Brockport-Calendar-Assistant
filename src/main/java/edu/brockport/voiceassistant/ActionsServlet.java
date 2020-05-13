@@ -37,8 +37,8 @@ import org.slf4j.LoggerFactory;
  */
 @WebServlet(name = "actions", value = "/")
 public class ActionsServlet extends HttpServlet {
-  private static final Logger LOG = LoggerFactory.getLogger(PaychexBrockportCalendarApp.class);
-  private final App actionsApp = new PaychexBrockportCalendarApp();
+  private static final Logger LOG = LoggerFactory.getLogger(BrockportCalendarApp.class);
+  private final App actionsApp = new BrockportCalendarApp();
 
   @Override
   protected void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {

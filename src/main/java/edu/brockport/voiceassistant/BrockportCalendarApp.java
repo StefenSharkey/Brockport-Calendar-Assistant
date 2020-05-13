@@ -33,7 +33,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-public class PaychexBrockportCalendarApp extends DialogflowApp {
+public class BrockportCalendarApp extends DialogflowApp {
 
     public static void main(String[] args) {
         try {
@@ -59,7 +59,7 @@ public class PaychexBrockportCalendarApp extends DialogflowApp {
         }
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PaychexBrockportCalendarApp.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(BrockportCalendarApp.class);
 
     // Note: Do not store any state as an instance variable.
     // It is ok to have final variables where the variable is assigned a value in

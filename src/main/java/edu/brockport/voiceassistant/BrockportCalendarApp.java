@@ -19,8 +19,6 @@ import com.google.actions.api.ActionRequest;
 import com.google.actions.api.ActionResponse;
 import com.google.actions.api.DialogflowApp;
 import com.google.actions.api.ForIntent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -29,7 +27,6 @@ import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -112,33 +109,33 @@ public class BrockportCalendarApp extends DialogflowApp {
     @ForIntent("getfutureevents")
     public ActionResponse getfutureevents(ActionRequest request) throws IOException {
         int numDays = ((Number) request.getParameter("numdays")).intValue();
-        String response;
+        final String[] response = new String[1];
 
         if(numDays <= 50 && numDays > 0) {
             List<DateInfo> events = new BrockportCalendar().getEventsInNextNDays(numDays);
 
-            response = "You asked about upcoming events in the next " + numDays + " days.\n";
+            response[0] = "You asked about upcoming events in the next " + numDays + " days.\n";
 
             if (events.size() == 0) {
-                response += "There were no events found.";
+                response[0] += "There were no events found.";
             } else {
                 if (events.size() == 1) {
-                    response += "There was one event found in the next " + numDays + " days:\n";
+                    response[0] += "There was one event found in the next " + numDays + " days:\n";
                 } else {
-                    response += "There were " + events.size() + " events found in the next " + numDays + " days:\n";
+                    response[0] += "There were " + events.size() + " events found in the next " + numDays + " days:\n";
                 }
 
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-                for (DateInfo event : events) {
-                    response += event.getCleanEventName() + " on " + dateFormat.format(event.getDate()) + "\n";
-                }
+                events.forEach(dateInfo ->
+                    response[0] += dateInfo.getCleanEventName() + " on " + dateFormat.format(dateInfo.getDate()) + "\n"
+                );
             }
         } else {
-            response = "Number of days must be between 1 and 50.";
+            response[0] = "Number of days must be between 1 and 50.";
         }
 
-        return getResponseBuilder(request).add(response).build();
+        return getResponseBuilder(request).add(response[0]).build();
     }
 
 }

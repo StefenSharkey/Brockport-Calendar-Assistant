@@ -11,7 +11,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
-import java.util.Map;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.time.DateUtils;
@@ -55,7 +54,7 @@ public class BrockportCalendar {
                     String duplicate = event + " Day 2";
 
                     for (int y = 2; CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ y); y++){
-                        duplicate = duplicate.substring(0, duplicate.length()-1) + (y+1);
+                        duplicate = duplicate.substring(0, duplicate.length() - 1) + (y + 1);
                     }
 
                     event = duplicate;
@@ -155,22 +154,20 @@ public class BrockportCalendar {
      */
     public List<DateInfo> getEventDates(String eventName, Tense tense) {
         // Remove all non-alphanumeric characters from the event name.
-        eventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
+        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.
-        for (Map.Entry<String, Date> entry : CALENDAR.entrySet()) {
+        CALENDAR.forEach((currEventName, date) -> {
             // Remove all non-alphanumeric characters from the current event.
-            String event = entry.getKey();
-            String tempEvent = event.toLowerCase().replaceAll("[^a-z0-9]", "");
-            Date tempDate = entry.getValue();
+            String tempEvent = currEventName.toLowerCase().replaceAll("[^a-z0-9]", "");
 
-            if (tense == Tense.PAST || !tempDate.before(new Date())) {
-                insertDate(new DateInfo(event,
-                        tempDate,
-                        tempEvent.contains(eventName) ? 100 : FuzzySearch.partialRatio(eventName, tempEvent)));
+            if (tense == Tense.PAST || !date.before(new Date())) {
+                insertDate(new DateInfo(currEventName,
+                        date,
+                        tempEvent.contains(finalEventName) ? 100 : FuzzySearch.partialRatio(finalEventName, tempEvent)));
             }
-        }
+        });
 
         return DATES;
     }
@@ -183,25 +180,23 @@ public class BrockportCalendar {
      *         null if no event is found.
      */
     public String getEventName(Date eventDate) {
+        final String[] eventName = {null};
+
         // Iterate through every key-value pair and compare the current date to eventDate. If they are the same date,
         // return it.
-        for (Map.Entry<String, Date> entry : CALENDAR.entrySet()) {
-            if (DateUtils.isSameDay(entry.getValue(), eventDate)) {
-                return entry.getKey();
+        CALENDAR.forEach((currEventName, date) -> {
+            if (eventName[0] == null && DateUtils.isSameDay(date, eventDate)) {
+                eventName[0] = currEventName;
             }
-        }
+        });
 
-        return null;
+        return eventName[0];
     }
 
     public DateInfo getDaysUntilEvent(String event) {
         List<DateInfo> dates = getEventDates(event, Tense.NOTPAST);
 
-        if (dates.isEmpty()) {
-            return null;
-        } else {
-            return dates.get(0);
-        }
+        return dates.isEmpty() ? null : dates.get(0);
     }
 
     private void insertDate(DateInfo dateInfo) {

@@ -141,11 +141,10 @@ public class BrockportCalendarApp extends DialogflowApp {
         return getResponseBuilder(request).add(response).build();
     }
 
-
     @ForIntent("getfutureevents")
     public ActionResponse getfutureevents(ActionRequest request) throws IOException {
-        int numDays = ((Number)request.getParameter("numdays")).intValue();
-        String response = "";
+        int numDays = ((Number) request.getParameter("numdays")).intValue();
+        String response;
 
         if(numDays <= 50 && numDays > 0) {
             List<DateInfo> events = new BrockportCalendar().getEventsInNextNDays(numDays);
@@ -155,19 +154,20 @@ public class BrockportCalendarApp extends DialogflowApp {
             if (events.size() == 0) {
                 response += "There were no events found.";
             } else {
-
                 if (events.size() == 1) {
                     response += "There was one event found in the next " + numDays + " days:\n";
                 } else {
                     response += "There were " + events.size() + " events found in the next " + numDays + " days:\n";
                 }
+
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                for (int i = 0; i < events.size(); i++) {
-                    response += events.get(i).getCleanEventName() + " on " + dateFormat.format(events.get(i).getDate()) + "\n";
+
+                for (DateInfo event : events) {
+                    response += event.getCleanEventName() + " on " + dateFormat.format(event.getDate()) + "\n";
                 }
             }
-        }else{
-            response = "Number of days must be between 1 and 50";
+        } else {
+            response = "Number of days must be between 1 and 50.";
         }
 
         return getResponseBuilder(request).add(response).build();

@@ -35,38 +35,6 @@ import java.util.List;
 
 public class BrockportCalendarApp extends DialogflowApp {
 
-    public static void main(String[] args) {
-        try {
-            BrockportCalendar cal = new BrockportCalendar();
-            Calendar calendar = Calendar.getInstance();
-            calendar.set(2019, Calendar.OCTOBER, 15);
-
-            DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-            Date date = Date.from(OffsetDateTime.parse("2020-03-11T12:00:00-05:00", formatter).toInstant());
-
-            List<DateInfo> eventDates = cal.getEventDates("midterms", Tense.PAST);
-            String eventName = cal.getEventName(date);
-
-            eventDates.forEach(dateInfo -> {
-                System.out.println(dateInfo.getName());
-                System.out.println(dateInfo.getDate());
-                System.out.println(dateInfo.getSimilarity());
-                System.out.println();
-            });
-            System.out.println(eventName);
-        } catch (IOException e) {
-            LOGGER.error(e.getLocalizedMessage());
-        }
-    }
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(BrockportCalendarApp.class);
-
-    // Note: Do not store any state as an instance variable.
-    // It is ok to have final variables where the variable is assigned a value in
-    // the constructor but remains unchanged. This is required to ensure thread-
-    // safety as the entry point (ActionServlet/ActionsAWSHandler) instances may
-    // be reused by the server.
-
     @ForIntent("getdate")
     public ActionResponse getdate(ActionRequest request) throws IOException {
         String event = (String) request.getParameter("event");

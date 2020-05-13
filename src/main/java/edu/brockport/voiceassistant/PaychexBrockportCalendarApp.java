@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package edu.brockport.paychexvoiceassistant;
+package edu.brockport.voiceassistant;
 
 import com.google.actions.api.ActionRequest;
 import com.google.actions.api.ActionResponse;

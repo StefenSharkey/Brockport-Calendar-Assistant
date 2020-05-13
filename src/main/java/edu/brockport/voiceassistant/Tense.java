@@ -1,4 +1,4 @@
-package edu.brockport.paychexvoiceassistant;
+package edu.brockport.voiceassistant;
 
 public enum Tense {
 

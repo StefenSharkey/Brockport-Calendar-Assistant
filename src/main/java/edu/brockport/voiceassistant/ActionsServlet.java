@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package edu.brockport.paychexvoiceassistant;
+package edu.brockport.voiceassistant;
 
 import com.google.actions.api.App;
 import java.io.IOException;

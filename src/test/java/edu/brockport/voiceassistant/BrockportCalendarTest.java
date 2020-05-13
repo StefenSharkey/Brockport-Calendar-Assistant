@@ -1,4 +1,4 @@
-package edu.brockport.paychexvoiceassistant;
+package edu.brockport.voiceassistant;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;

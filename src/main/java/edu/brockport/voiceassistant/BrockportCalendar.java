@@ -122,11 +122,14 @@ public class BrockportCalendar {
                     // e.g. August 26, 2019, Monday, 8 AM
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy, EEEEE, hh a");
                     dates.add(dateFormat.parse(dateString));
+                    break;
                 case 9:
                     // e.g. April 10, 2020, Friday, 9 AM – 5 PM
                     // Current method: chop off the second time and run it through like normal.
-                    dateSplit = dateSplit.subList(0, 6);
+                    dateSplit = dateSplit.subList(0, 3);
                     dateString = String.join(" ", dateSplit);
+                    dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
+                    dates.add(dateFormat.parse(dateString));
                     break;
                 default:
                     LOGGER.error("Input " + dateString + " not in expected format.");

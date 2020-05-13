@@ -100,6 +100,11 @@ public class BrockportCalendar {
                     break;
                 case 5:
                     // e.g. September 26 – 28, 2019
+                    //only added at the start date for now, only one event of this form so not a huge deal
+                    dateString = dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4);
+                    dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
+                    dates.add(dateFormat.parse(dateString));
+                    break;
                 case 8:
                     // e.g. October 14 & 15, 2019, Monday & Tuesday
                     dateFormat = new SimpleDateFormat("MMMMM d yyyy");
@@ -158,6 +163,11 @@ public class BrockportCalendar {
     public List<DateInfo> getEventDates(String eventName, Tense tense) {
         // Remove all non-alphanumeric characters from the event name.
         String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "");
+
+        //edge case
+        if(eventName.contains("graduation")){
+            eventName.replace("graduation", "commencement ceremony");
+        }
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.

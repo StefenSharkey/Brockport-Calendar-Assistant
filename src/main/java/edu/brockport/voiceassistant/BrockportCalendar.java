@@ -216,22 +216,21 @@ public class BrockportCalendar {
     }
 
     public List<DateInfo> getEventsInNextNDays(int numDays) {
-        final int DAY_IN_MILLISECONDS = 24 * 60 * 60 * 1000;
-        final Date today = new Date();
+        Calendar calendar = Calendar.getInstance();
 
-        Date cutoff = new Date();
-        for(int i=0; i<numDays; i++){
-            cutoff.setTime(cutoff.getTime() + DAY_IN_MILLISECONDS);
-        }
+        Date today = calendar.getTime();
+        calendar.add(Calendar.DAY_OF_YEAR, numDays);
+        Date cutoff = calendar.getTime();
 
-        List <DateInfo> eventsInRange = new ArrayList();
-        for(Map.Entry<String, Date> entry : CALENDAR.entrySet()){
-            if(entry.getValue().after(today) && entry.getValue().before(cutoff)){
-                eventsInRange.add(new DateInfo(entry.getKey(), entry.getValue(), 0));
+        List <DateInfo> eventsInRange = new ArrayList<>();
+
+        CALENDAR.forEach((eventName, date) -> {
+            if(date.after(today) && date.before(cutoff)) {
+                eventsInRange.add(new DateInfo(eventName, date, 0));
             }
-        }
+        });
 
-        eventsInRange.sort(Comparator.comparing(o -> ((DateInfo) o).getDate()));
+        eventsInRange.sort(Comparator.comparing(DateInfo::getDate));
         return eventsInRange;
     }
 }

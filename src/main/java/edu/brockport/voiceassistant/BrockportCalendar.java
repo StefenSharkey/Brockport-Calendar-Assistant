@@ -48,19 +48,19 @@ public class BrockportCalendar {
             ArrayList<Date> dateList = formatDate(dates.get(x).text());
 
             for (Date date : dateList) {
-                String event = events.get(x).text();
+                String eventName = events.get(x).text();
 
-                if (CALENDAR.containsKey(event)) {
-                    String duplicate = event + " Day 2";
+                if (CALENDAR.containsKey(eventName)) {
+                    String duplicate = eventName + " Day 2";
 
                     for (int y = 2; CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ y); y++){
                         duplicate = duplicate.substring(0, duplicate.length() - 1) + (y + 1);
                     }
 
-                    event = duplicate;
+                    eventName = duplicate;
                 }
 
-                CALENDAR.put(event, date);
+                CALENDAR.put(eventName, date);
             }
         }
     }
@@ -193,8 +193,8 @@ public class BrockportCalendar {
         return eventName[0];
     }
 
-    public DateInfo getDaysUntilEvent(String event) {
-        List<DateInfo> dates = getEventDates(event, Tense.NOTPAST);
+    public DateInfo getDaysUntilEvent(String eventName) {
+        List<DateInfo> dates = getEventDates(eventName, Tense.NOTPAST);
 
         return dates.isEmpty() ? null : dates.get(0);
     }

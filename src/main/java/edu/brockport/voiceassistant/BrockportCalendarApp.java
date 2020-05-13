@@ -69,7 +69,7 @@ public class BrockportCalendarApp extends DialogflowApp {
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        String eventName = new BrockportCalendar().getEventName(date);
+        DateInfo eventDate = new DateInfo(new BrockportCalendar().getEventName(date), date, 0);
 
         String response = "You asked about " + dateFormat.format(date);
 
@@ -79,10 +79,10 @@ public class BrockportCalendarApp extends DialogflowApp {
 
         response += ".\n";
 
-        if (eventName == null) {
+        if (eventDate.getName() == null) {
             response += "There were no events found.";
         } else {
-            response += "The event is " + eventName + ".";
+            response += "The event is " + eventDate.getCleanEventName() + ".";
         }
 
         return getResponseBuilder(request).add(response).build();

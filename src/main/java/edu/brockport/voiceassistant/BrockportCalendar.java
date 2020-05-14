@@ -188,17 +188,25 @@ public class BrockportCalendar {
      *         null if no event is found.
      */
     public String getEventName(Date eventDate) {
-        final String[] eventName = {null};
-
+        final ArrayList<String> events = new ArrayList<>();
+        String ret = "";
         // Iterate through every key-value pair and compare the current date to eventDate. If they are the same date,
         // return it.
         CALENDAR.forEach((currEventName, date) -> {
-            if (eventName[0] == null && DateUtils.isSameDay(date, eventDate)) {
-                eventName[0] = currEventName;
+            if (DateUtils.isSameDay(date, eventDate)) {
+                events.add(currEventName);
             }
         });
 
-        return eventName[0];
+        for(int i=0; i<events.size(); i++){
+            if(i!=0){
+                ret += " and \n";
+            }
+
+            ret += events.get(i);
+        }
+
+        return (ret.equals("")) ? null : ret;
     }
 
     public DateInfo getDaysUntilEvent(String eventName) {

@@ -18,6 +18,6 @@ public class DateInfo {
     }
 
     protected String getCleanEventName(){
-        return name.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "");
+        return name.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "").replaceAll("[(]\\d[)]", "");
     }
 }

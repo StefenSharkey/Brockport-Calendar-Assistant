@@ -39,66 +39,66 @@ public class BrockportCalendarTest {
     @Test
     @DisplayName("1. Gets date of a past event with a past tense.")
     public void getDate_PastEvent_PastTense_ShouldReturnDate() throws IOException {
-        assertFalse(new BrockportCalendar().getEventDates(pastEvent, Tense.PAST).isEmpty());
+        assertFalse(new BrockportCalendar().getEventDates(pastEvent, Tense.PAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("2. Fails to get date of a past event with a not past tense.")
     public void getDate_PastEvent_NotPastTense_ShouldNotReturnDate() throws IOException {
-        assertTrue(new BrockportCalendar().getEventDates(pastEvent, Tense.NOTPAST).isEmpty());
+        assertTrue(new BrockportCalendar().getEventDates(pastEvent, Tense.NOTPAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("3. Gets date of a not past event with a not past tense.")
     public void getDate_NotPastEvent_NotPastTense_ShouldReturnDate() throws IOException {
-        assertFalse(new BrockportCalendar().getEventDates(notPastEvent, Tense.NOTPAST).isEmpty());
+        assertFalse(new BrockportCalendar().getEventDates(notPastEvent, Tense.NOTPAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("4. Fails to get date of a not past event with a past tense.")
     public void getDate_NotPastEvent_PastTense_ShouldReturnDate() throws IOException {
-        assertTrue(new BrockportCalendar().getEventDates(notPastEvent, Tense.PAST).isEmpty());
+        assertTrue(new BrockportCalendar().getEventDates(notPastEvent, Tense.PAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("5. Fails to get date of a fake event with a past tense.")
     public void getDate_FakeEvent_PastTense_ShouldNotReturnDate() throws IOException {
-        assertTrue(new BrockportCalendar().getEventDates(fakeEvent, Tense.PAST).isEmpty());
+        assertTrue(new BrockportCalendar().getEventDates(fakeEvent, Tense.PAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("6. Fails to get date of a fake event with a not past tense.")
     public void getDate_FakeEvent_NotPastTense_ShouldNotReturnDate() throws IOException {
-        assertTrue(new BrockportCalendar().getEventDates(fakeEvent, Tense.NOTPAST).isEmpty());
+        assertTrue(new BrockportCalendar().getEventDates(fakeEvent, Tense.NOTPAST, false).isEmpty());
     }
 
     @Test
     @DisplayName("7. Gets name of a past date.")
     public void getEvent_PastDate_ShouldReturnEvent() throws IOException {
-        assertNotNull(new BrockportCalendar().getEventName(pastDate));
+        assertNotNull(new BrockportCalendar().getEventName(pastDate, false));
     }
 
     @Test
     @DisplayName("8. Gets name of a not past date.")
     public void getEvent_NotPastDate_ShouldReturnEvent() throws IOException {
-        assertNotNull(new BrockportCalendar().getEventName(notPastDate));
+        assertNotNull(new BrockportCalendar().getEventName(notPastDate, false));
     }
 
     @Test
     @DisplayName("9. Fails to get name of a fake date.")
     public void getEvent_FakeDate_ShouldNotReturnEvent() throws IOException {
-        assertNull(new BrockportCalendar().getEventName(fakeDate));
+        assertNull(new BrockportCalendar().getEventName(fakeDate, false));
     }
 
     @Test
     @DisplayName("10. Gets days until not past event.")
     public void getDaysUntilEvent_NotPastEvent_ShouldReturnDays() throws IOException {
-        assertNotNull(new BrockportCalendar().getDaysUntilEvent(notPastEvent));
+        assertNotNull(new BrockportCalendar().getDaysUntilEvent(notPastEvent, false));
     }
 
     @Test
     @DisplayName("11. Fails to get days until past event.")
     public void getDaysUntilEvent_PastEvent_ShouldNotReturnDays() throws IOException {
-        assertNotNull(new BrockportCalendar().getDaysUntilEvent(pastEvent));
+        assertNotNull(new BrockportCalendar().getDaysUntilEvent(pastEvent, false));
     }
 }

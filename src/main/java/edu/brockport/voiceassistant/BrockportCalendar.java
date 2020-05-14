@@ -160,7 +160,7 @@ public class BrockportCalendar {
      *             considered.
      * @return The {@link java.util.ArrayList<java.util.Date>} for an event.
      */
-    public List<DateInfo> getEventDates(String eventName, Tense tense) {
+    public List<DateInfo> getEventDates(String eventName, Tense tense, boolean cleanEventNames) {
         // Remove all non-alphanumeric characters from the event name.
         String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "").replace("graduation", "commencement ceremony");
 
@@ -171,7 +171,7 @@ public class BrockportCalendar {
             String tempEvent = currEventName.toLowerCase().replaceAll("[^a-z0-9]", "");
 
             if (tense == Tense.PAST || !date.before(new Date())) {
-                insertDate(new DateInfo(currEventName,
+                insertDate(new DateInfo(cleanEventNames ? getCleanEventName(currEventName) : currEventName,
                         date,
                         tempEvent.contains(finalEventName) ? 100 : FuzzySearch.partialRatio(finalEventName, tempEvent)));
             }
@@ -187,8 +187,8 @@ public class BrockportCalendar {
      * @return The name of the event.
      *         null if no event is found.
      */
-    public String getEventName(Date eventDate) {
-        final String[] eventName = {null};
+    public String getEventName(Date eventDate, boolean cleanEventName) {
+        String[] eventName = {null};
 
         // Iterate through every key-value pair and compare the current date to eventDate. If they are the same date,
         // return it.
@@ -198,11 +198,11 @@ public class BrockportCalendar {
             }
         });
 
-        return eventName[0];
+        return cleanEventName ? getCleanEventName(eventName[0]) : eventName[0];
     }
 
-    public DateInfo getDaysUntilEvent(String eventName) {
-        List<DateInfo> dates = getEventDates(eventName, Tense.NOTPAST);
+    public DateInfo getDaysUntilEvent(String eventName, boolean cleanEventNames) {
+        List<DateInfo> dates = getEventDates(eventName, Tense.NOTPAST, cleanEventNames);
 
         return dates.isEmpty() ? null : dates.get(0);
     }
@@ -225,7 +225,7 @@ public class BrockportCalendar {
         DATES.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
     }
 
-    public List<DateInfo> getEventsInNextNDays(int numDays) {
+    public List<DateInfo> getEventsInNextNDays(int numDays, boolean cleanEventNames) {
         Calendar calendar = Calendar.getInstance();
 
         Date today = calendar.getTime();
@@ -236,11 +236,15 @@ public class BrockportCalendar {
 
         CALENDAR.forEach((eventName, date) -> {
             if(date.after(today) && date.before(cutoff)) {
-                eventsInRange.add(new DateInfo(eventName, date, 0));
+                eventsInRange.add(new DateInfo(cleanEventNames ? getCleanEventName(eventName) : eventName, date, 0));
             }
         });
 
         eventsInRange.sort(Comparator.comparing(DateInfo::getDate));
         return eventsInRange;
+    }
+
+    private static String getCleanEventName(String eventName) {
+        return eventName.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "");
     }
 }

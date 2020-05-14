@@ -102,9 +102,8 @@ public class BrockportCalendar {
                 case 5:
                     // e.g. September 26 – 28, 2019
                     //only added at the start date for now, only one event of this form so not a huge deal
-                    String tempDateString = dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4);
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(tempDateString));
+                    dates.add(dateFormat.parse(dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4)));
                     break;
                 case 8:
                     // e.g. October 14 & 15, 2019, Monday & Tuesday
@@ -133,9 +132,8 @@ public class BrockportCalendar {
                     // e.g. April 10, 2020, Friday, 9 AM – 5 PM
                     // Current method: chop off the second time and run it through like normal.
                     dateSplit = dateSplit.subList(0, 3);
-                    dateString = String.join(" ", dateSplit);
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(dateString));
+                    dates.add(dateFormat.parse(String.join(" ", dateSplit)));
                     break;
                 default:
                     LOGGER.error("Input {} not in expected format.", dateString);
@@ -163,7 +161,8 @@ public class BrockportCalendar {
      */
     public List<DateInfo> getEventDates(String eventName, Tense tense, boolean cleanEventNames) {
         // Remove all non-alphanumeric characters from the event name.
-        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "").replace("graduation", "commencement ceremony");
+        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "")
+                .replace("graduation", "commencement ceremony");
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.

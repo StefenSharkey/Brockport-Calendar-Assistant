@@ -65,7 +65,7 @@ public class BrockportCalendarApp extends DialogflowApp {
     @ForIntent("getevent")
     public ActionResponse getevent(ActionRequest request) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        Date date = Date.from(OffsetDateTime.parse((String) request.getParameter("date"), formatter).toInstant());
+        Date date = Date.from(OffsetDateTime.parse((CharSequence) request.getParameter("date"), formatter).toInstant());
         Tense tense = Tense.valueOf(((String) request.getParameter("tense")).toUpperCase());
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 

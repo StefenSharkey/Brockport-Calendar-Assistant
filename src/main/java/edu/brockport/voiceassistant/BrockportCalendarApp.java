@@ -39,7 +39,7 @@ public class BrockportCalendarApp extends DialogflowApp {
         List<DateInfo> dates = new BrockportCalendar().getEventDates(eventName, tense, true);
         SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
-        final String[] response = {"You asked about " + eventName};
+        String[] response = {"You asked about " + eventName};
 
         if (tense == Tense.PAST) {
             response[0] += ", including past events";
@@ -116,7 +116,7 @@ public class BrockportCalendarApp extends DialogflowApp {
 
             response[0] = "You asked about upcoming events in the next " + numDays + " days.\n";
 
-            if (events.size() == 0) {
+            if (events.isEmpty()) {
                 response[0] += "There were no events found.";
             } else {
                 if (events.size() == 1) {

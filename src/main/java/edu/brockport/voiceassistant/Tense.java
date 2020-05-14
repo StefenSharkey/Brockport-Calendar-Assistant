@@ -7,7 +7,7 @@ public enum Tense {
 
     public final String label;
 
-    private Tense(String label) {
+    Tense(String label) {
         this.label = label;
     }
 }

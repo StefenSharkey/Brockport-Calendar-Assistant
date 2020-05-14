@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.time.DateUtils;
@@ -27,7 +28,7 @@ public class BrockportCalendar {
 
     private static final double DATE_SIMILARITY_THRESHOLD = 0.20;
 
-    private final HashMap<String, Date> CALENDAR = new HashMap<>();
+    private final Map<String, Date> CALENDAR = new HashMap<>();
 
     private final List<DateInfo> DATES = new ArrayList<>();
     private static final int MAX_DATES = 3;
@@ -44,11 +45,11 @@ public class BrockportCalendar {
 
         // Since some dates have multiple events, create multiple key-value pairs with the same date, appending "Day X"
         // to the name, with X being the Xth occurrence of that event.
-        for(int x = 0; x < dates.size(); x++) {
-            ArrayList<Date> dateList = formatDate(dates.get(x).text());
+        for (int[] x = {0}; x[0] < dates.size(); x[0]++) {
+            Iterable<Date> dateList = formatDate(dates.get(x[0]).text());
 
-            for (Date date : dateList) {
-                String eventName = events.get(x).text();
+            dateList.forEach(date -> {
+                String eventName = events.get(x[0]).text();
 
                 if (CALENDAR.containsKey(eventName)) {
                     String duplicate = eventName + " Day 2";
@@ -61,7 +62,7 @@ public class BrockportCalendar {
                 }
 
                 CALENDAR.put(eventName, date);
-            }
+            });
         }
     }
 
@@ -81,10 +82,10 @@ public class BrockportCalendar {
      * @return A list of parsed dates.
      * @throws InputMismatchException If the given date and time string is not in a recognized
      */
-    private ArrayList<Date> formatDate(String dateString) throws InputMismatchException {
+    private Iterable<Date> formatDate(String dateString) throws InputMismatchException {
         List<String> dateSplit = Arrays.asList(dateString.split(" "));
         SimpleDateFormat dateFormat;
-        ArrayList<Date> dates = new ArrayList<>();
+        List<Date> dates = new ArrayList<>();
 
         try {
             switch (dateSplit.size()) {
@@ -101,9 +102,9 @@ public class BrockportCalendar {
                 case 5:
                     // e.g. September 26 – 28, 2019
                     //only added at the start date for now, only one event of this form so not a huge deal
-                    dateString = dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4);
+                    String tempDateString = dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4);
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(dateString));
+                    dates.add(dateFormat.parse(tempDateString));
                     break;
                 case 8:
                     // e.g. October 14 & 15, 2019, Monday & Tuesday
@@ -137,13 +138,13 @@ public class BrockportCalendar {
                     dates.add(dateFormat.parse(dateString));
                     break;
                 default:
-                    LOGGER.error("Input " + dateString + " not in expected format.");
+                    LOGGER.error("Input {} not in expected format.", dateString);
                     throw new InputMismatchException("Input " + dateString + " not in expected format.");
             }
         } catch (ParseException e) {
             LOGGER.error(e.getLocalizedMessage());
         } catch (InputMismatchException e) {
-            LOGGER.error("Input " + dateString + "not in expected format.");
+            LOGGER.error("Input {} not in expected format.", dateString);
             throw new InputMismatchException("Input " + dateString + " not in expected format.");
         }
 

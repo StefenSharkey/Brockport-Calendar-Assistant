@@ -16,8 +16,4 @@ public class DateInfo {
         this.date = date;
         this.similarity = similarity;
     }
-
-    protected String getCleanEventName(){
-        return name.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "").replaceAll("[(]\\d[)]", "");
-    }
 }

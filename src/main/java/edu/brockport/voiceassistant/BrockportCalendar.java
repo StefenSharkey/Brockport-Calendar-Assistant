@@ -11,6 +11,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
+import java.util.Map;
 
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.time.DateUtils;
@@ -27,7 +28,7 @@ public class BrockportCalendar {
 
     private static final double DATE_SIMILARITY_THRESHOLD = 0.20;
 
-    private final HashMap<String, Date> CALENDAR = new HashMap<>();
+    private final Map<String, Date> CALENDAR = new HashMap<>();
 
     private final List<DateInfo> DATES = new ArrayList<>();
     private static final int MAX_DATES = 3;
@@ -44,11 +45,11 @@ public class BrockportCalendar {
 
         // Since some dates have multiple events, create multiple key-value pairs with the same date, appending "Day X"
         // to the name, with X being the Xth occurrence of that event.
-        for(int x = 0; x < dates.size(); x++) {
-            ArrayList<Date> dateList = formatDate(dates.get(x).text());
+        for (int[] x = {0}; x[0] < dates.size(); x[0]++) {
+            Iterable<Date> dateList = formatDate(dates.get(x[0]).text());
 
-            for (Date date : dateList) {
-                String eventName = events.get(x).text();
+            dateList.forEach(date -> {
+                String eventName = events.get(x[0]).text();
 
                 if (CALENDAR.containsKey(eventName)) {
                     String duplicate = eventName + " Day 2";
@@ -61,7 +62,7 @@ public class BrockportCalendar {
                 }
 
                 CALENDAR.put(eventName, date);
-            }
+            });
         }
     }
 
@@ -81,10 +82,10 @@ public class BrockportCalendar {
      * @return A list of parsed dates.
      * @throws InputMismatchException If the given date and time string is not in a recognized
      */
-    private ArrayList<Date> formatDate(String dateString) throws InputMismatchException {
+    private Iterable<Date> formatDate(String dateString) throws InputMismatchException {
         List<String> dateSplit = Arrays.asList(dateString.split(" "));
         SimpleDateFormat dateFormat;
-        ArrayList<Date> dates = new ArrayList<>();
+        List<Date> dates = new ArrayList<>();
 
         try {
             switch (dateSplit.size()) {
@@ -101,9 +102,8 @@ public class BrockportCalendar {
                 case 5:
                     // e.g. September 26 – 28, 2019
                     //only added at the start date for now, only one event of this form so not a huge deal
-                    dateString = dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4);
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(dateString));
+                    dates.add(dateFormat.parse(dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4)));
                     break;
                 case 8:
                     // e.g. October 14 & 15, 2019, Monday & Tuesday
@@ -132,18 +132,17 @@ public class BrockportCalendar {
                     // e.g. April 10, 2020, Friday, 9 AM – 5 PM
                     // Current method: chop off the second time and run it through like normal.
                     dateSplit = dateSplit.subList(0, 3);
-                    dateString = String.join(" ", dateSplit);
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(dateString));
+                    dates.add(dateFormat.parse(String.join(" ", dateSplit)));
                     break;
                 default:
-                    LOGGER.error("Input " + dateString + " not in expected format.");
+                    LOGGER.error("Input {} not in expected format.", dateString);
                     throw new InputMismatchException("Input " + dateString + " not in expected format.");
             }
         } catch (ParseException e) {
             LOGGER.error(e.getLocalizedMessage());
         } catch (InputMismatchException e) {
-            LOGGER.error("Input " + dateString + "not in expected format.");
+            LOGGER.error("Input {} not in expected format.", dateString);
             throw new InputMismatchException("Input " + dateString + " not in expected format.");
         }
 
@@ -160,9 +159,10 @@ public class BrockportCalendar {
      *             considered.
      * @return The {@link java.util.ArrayList<java.util.Date>} for an event.
      */
-    public List<DateInfo> getEventDates(String eventName, Tense tense) {
+    public List<DateInfo> getEventDates(String eventName, Tense tense, boolean cleanEventNames) {
         // Remove all non-alphanumeric characters from the event name.
-        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "").replace("graduation", "commencement ceremony");
+        String finalEventName = eventName.toLowerCase().replaceAll("[^a-z0-9]", "")
+                .replace("graduation", "commencement ceremony");
 
         // Iterate through every key-value pair and compare the event name similarity to the event in the current loop
         // state.
@@ -171,7 +171,7 @@ public class BrockportCalendar {
             String tempEvent = currEventName.toLowerCase().replaceAll("[^a-z0-9]", "");
 
             if (tense == Tense.PAST || !date.before(new Date())) {
-                insertDate(new DateInfo(currEventName,
+                insertDate(new DateInfo(cleanEventNames ? getCleanEventName(currEventName) : currEventName,
                         date,
                         tempEvent.contains(finalEventName) ? 100 : FuzzySearch.partialRatio(finalEventName, tempEvent)));
             }
@@ -187,30 +187,22 @@ public class BrockportCalendar {
      * @return The name of the event.
      *         null if no event is found.
      */
-    public String getEventName(Date eventDate) {
-        final ArrayList<String> events = new ArrayList<>();
-        String ret = "";
+    public String getEventName(Date eventDate, boolean cleanEventName) {
+        String[] eventName = {null};
+
         // Iterate through every key-value pair and compare the current date to eventDate. If they are the same date,
         // return it.
         CALENDAR.forEach((currEventName, date) -> {
-            if (DateUtils.isSameDay(date, eventDate)) {
-                events.add(currEventName);
+            if (eventName[0] == null && DateUtils.isSameDay(date, eventDate)) {
+                eventName[0] = currEventName;
             }
         });
 
-        for(int i=0; i<events.size(); i++){
-            if(i!=0){
-                ret += " and \n";
-            }
-
-            ret += events.get(i);
-        }
-
-        return (ret.equals("")) ? null : ret;
+        return cleanEventName ? getCleanEventName(eventName[0]) : eventName[0];
     }
 
-    public DateInfo getDaysUntilEvent(String eventName) {
-        List<DateInfo> dates = getEventDates(eventName, Tense.NOTPAST);
+    public DateInfo getDaysUntilEvent(String eventName, boolean cleanEventNames) {
+        List<DateInfo> dates = getEventDates(eventName, Tense.NOTPAST, cleanEventNames);
 
         return dates.isEmpty() ? null : dates.get(0);
     }
@@ -233,7 +225,7 @@ public class BrockportCalendar {
         DATES.sort(Comparator.comparing(o -> ((DateInfo) o).getSimilarity()).reversed());
     }
 
-    public List<DateInfo> getEventsInNextNDays(int numDays) {
+    public List<DateInfo> getEventsInNextNDays(int numDays, boolean cleanEventNames) {
         Calendar calendar = Calendar.getInstance();
 
         Date today = calendar.getTime();
@@ -244,11 +236,15 @@ public class BrockportCalendar {
 
         CALENDAR.forEach((eventName, date) -> {
             if(date.after(today) && date.before(cutoff)) {
-                eventsInRange.add(new DateInfo(eventName, date, 0));
+                eventsInRange.add(new DateInfo(cleanEventNames ? getCleanEventName(eventName) : eventName, date, 0));
             }
         });
 
         eventsInRange.sort(Comparator.comparing(DateInfo::getDate));
         return eventsInRange;
+    }
+
+    private static String getCleanEventName(String eventName) {
+        return eventName.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "");
     }
 }

@@ -27,7 +27,7 @@ public class BrockportCalendar {
     private static final Logger LOGGER = LoggerFactory.getLogger(BrockportCalendar.class);
     private static final String WEBSITE = "https://www.brockport.edu/academics/calendar/";
 
-    private static final double DATE_SIMILARITY_THRESHOLD = 0.20;
+    private static final int DATE_SIMILARITY_THRESHOLD = 20;
 
     private final Map<String, Date> CALENDAR = new HashMap<>();
 

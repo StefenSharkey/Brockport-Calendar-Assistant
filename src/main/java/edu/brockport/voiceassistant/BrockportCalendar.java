@@ -1,18 +1,5 @@
 package edu.brockport.voiceassistant;
 
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.InputMismatchException;
-import java.util.List;
-import java.util.Map;
-
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.apache.commons.lang.time.DateUtils;
 import org.jsoup.Jsoup;
@@ -20,6 +7,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.List;
+import java.util.Map;
 
 public class BrockportCalendar {
 
@@ -54,7 +55,7 @@ public class BrockportCalendar {
                 if (CALENDAR.containsKey(eventName)) {
                     String duplicate = eventName + " Day 2";
 
-                    for (int y = 2; CALENDAR.containsKey(duplicate.substring(0,duplicate.length()-1)+ y); y++){
+                    for (int y = 2; CALENDAR.containsKey(duplicate.substring(0, duplicate.length() - 1) + y); y++) {
                         duplicate = duplicate.substring(0, duplicate.length() - 1) + (y + 1);
                     }
 
@@ -115,7 +116,7 @@ public class BrockportCalendar {
     private Iterable<Date> formatDate(String dateString) throws InputMismatchException {
         List<String> dateSplit = Arrays.asList(dateString.split(" "));
         SimpleDateFormat dateFormat;
-        List<Date> dates = new ArrayList<>();
+        Collection<Date> dates = new ArrayList<>();
 
         try {
             switch (dateSplit.size()) {
@@ -131,21 +132,18 @@ public class BrockportCalendar {
                     break;
                 case 5:
                     // e.g. September 26 – 28, 2019
-                    //only added at the start date for now, only one event of this form so not a huge deal
-                    dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
-                    dates.add(dateFormat.parse(dateSplit.get(0) + " " + dateSplit.get(1) + ", " + dateSplit.get(4)));
-                    break;
                 case 8:
                     // e.g. October 14 & 15, 2019, Monday & Tuesday
                     dateFormat = new SimpleDateFormat("MMMMM d yyyy");
+
                     Date startDate = dateFormat.parse(String.format("%s %s %s", dateSplit.get(0),
-                                                                                dateSplit.get(1),
-                                                                                dateSplit.get(4)));
+                            dateSplit.get(1),
+                            dateSplit.get(4)));
 
                     dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
                     Date endDate = dateFormat.parse(String.format("%s %s %s", dateSplit.get(0),
-                                                                              dateSplit.get(3),
-                                                                              dateSplit.get(4)));
+                            dateSplit.get(3),
+                            dateSplit.get(4)));
 
                     // Loop through each date within the range and add them to the list.
                     while (!startDate.after(endDate)) {
@@ -222,7 +220,7 @@ public class BrockportCalendar {
      * null if no event is found.
      */
     public String getEventName(Date eventDate, boolean cleanEventName) {
-        final ArrayList<String> events = new ArrayList<>();
+        ArrayList<String> events = new ArrayList<>();
         String ret = "";
         // Iterate through every key-value pair and compare the current date to eventDate. If they are the same date,
         // return it.
@@ -250,7 +248,7 @@ public class BrockportCalendar {
             ret += events.get(i);
         }
 
-        if(cleanEventName){
+        if (cleanEventName) {
             ret = getCleanEventName(ret);
         }
 
@@ -287,11 +285,11 @@ public class BrockportCalendar {
         calendar.add(Calendar.DAY_OF_YEAR, numDays);
         Date cutoff = calendar.getTime();
 
-        List <DateInfo> eventsInRange = new ArrayList<>();
+        List<DateInfo> eventsInRange = new ArrayList<>();
 
         // Loop through every date, only adding days that occur within the current day and cutoff day.
         CALENDAR.forEach((eventName, date) -> {
-            if(date.after(today) && date.before(cutoff)) {
+            if (date.after(today) && date.before(cutoff)) {
                 eventsInRange.add(new DateInfo(cleanEventNames ? getCleanEventName(eventName) : eventName, date, 0));
             }
         });
@@ -308,6 +306,9 @@ public class BrockportCalendar {
      * @return The cleaned event name.
      */
     private static String getCleanEventName(String eventName) {
-        return eventName.replaceAll("Day \\d", "").replaceAll("[ ][(]\\d[)]", "").replaceAll("[(]\\d[)]", "");
+        return eventName
+                .replaceAll("Day \\d", "")
+                .replaceAll("[ ][(]\\d[)]", "")
+                .replaceAll("[(]\\d[)]", "");
     }
 }

@@ -198,9 +198,17 @@ public class BrockportCalendar {
             }
         });
 
-        for(int i=0; i<events.size(); i++){
-            if(i!=0){
-                ret += " and \n";
+        for (int i = 0; i < events.size(); i++) {
+            if (i != 0) {
+                if (i == events.size() - 1) {
+                    if (events.size() > 2) {
+                        ret += ",";
+                    }
+
+                    ret += " and ";
+                } else {
+                    ret += ", ";
+                }
             }
 
             ret += events.get(i);

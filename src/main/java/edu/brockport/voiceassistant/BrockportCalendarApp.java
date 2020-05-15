@@ -128,8 +128,9 @@ public class BrockportCalendarApp extends DialogflowApp {
                 SimpleDateFormat dateFormat = new SimpleDateFormat("MMMMM d, yyyy");
 
                 events.forEach(dateInfo ->
-                    response[0] += dateInfo.getName() + " on " + dateFormat.format(dateInfo.getDate()) + "\n"
+                    response[0] += dateInfo.getName() + " on " + dateFormat.format(dateInfo.getDate()) + ",\n"
                 );
+                response[0] = response[0].substring(0,response[0].length()-2);
             }
         } else {
             response[0] = "Number of days must be between 1 and 50.";

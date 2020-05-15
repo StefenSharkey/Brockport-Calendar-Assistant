@@ -218,7 +218,7 @@ public class BrockportCalendar {
             ret = getCleanEventName(ret);
         }
 
-        return (ret.equals("")) ? null : ret;
+        return ret.isEmpty() ? null : ret;
     }
 
     public DateInfo getDaysUntilEvent(String eventName, boolean cleanEventNames) {
